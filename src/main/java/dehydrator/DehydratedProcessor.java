@@ -15,7 +15,6 @@ import static java.util.stream.Collectors.toList;
 import static javax.lang.model.SourceVersion.RELEASE_8;
 import static javax.lang.model.element.Modifier.*;
 import static javax.lang.model.type.TypeKind.BOOLEAN;
-import static javax.tools.Diagnostic.Kind.NOTE;
 import static javax.tools.Diagnostic.Kind.WARNING;
 
 @SupportedAnnotationTypes({"dehydrator.Dehydrate", "dehydrator.Dehydrates"})
@@ -38,7 +37,6 @@ public class DehydratedProcessor extends AbstractProcessor {
 
         if("Dehydrate".equals(annotation.getSimpleName().toString())) {
             // annotation unique
-            processingEnv.getMessager().printMessage(NOTE, "UNIQUE" + clazz);
             val annotationMirror = getAnnotation(clazz, Dehydrate.class.getName());
 
             val annotationValues = getAnnotationValues(annotationMirror);
@@ -49,15 +47,10 @@ public class DehydratedProcessor extends AbstractProcessor {
                 processingEnv.getMessager().printMessage(WARNING,
                         "'exclude' can't be used together with 'of' and will be ignored.", clazz, annotationMirror);
             }
-            if(!context.name.isEmpty() && !context.suffix.isEmpty()) {
-                processingEnv.getMessager().printMessage(WARNING,
-                        "'suffix' can't be used together with 'name' and will be ignored.", clazz, annotationMirror);
-            }
             generate(clazz);
 
         } else if("Dehydrates".equals(annotation.getSimpleName().toString())) {
             //annotation multiple
-            processingEnv.getMessager().printMessage(NOTE, "REPETED" + clazz);
             val annotationMirrors = getRepeatableAnnotations(clazz, Dehydrates.class.getName());
 
             annotationMirrors.forEach(annotationMirror -> {
@@ -69,10 +62,6 @@ public class DehydratedProcessor extends AbstractProcessor {
                     processingEnv.getMessager().printMessage(WARNING,
                             "'exclude' can't be used together with 'of' and will be ignored.", clazz, annotationMirror);
                 }
-                if(!context.name.isEmpty() && !context.suffix.isEmpty()) {
-                    processingEnv.getMessager().printMessage(WARNING,
-                            "'suffix' can't be used together with 'name' and will be ignored.", clazz, annotationMirror);
-                }
                 generate(clazz);
 
             });
@@ -81,8 +70,6 @@ public class DehydratedProcessor extends AbstractProcessor {
 
     void generate(TypeElement elt) {
         val qualifiedClassName = getTargetQualifiedClassName(elt);
-
-        processingEnv.getMessager().printMessage(NOTE, "Dehydrating " + elt.getQualifiedName(), elt);
 
         val fields = processingEnv.getElementUtils().getAllMembers(elt)
                 .stream()
@@ -232,8 +219,6 @@ public class DehydratedProcessor extends AbstractProcessor {
     AnnotationMirror getAnnotation(Element element, String annotationName) {
         val annotation = processingEnv.getElementUtils().getTypeElement(annotationName);
         for (val mirror : element.getAnnotationMirrors()) {
-            processingEnv.getMessager().printMessage(NOTE, "annotation " + mirror);
-
             if (mirror.getAnnotationType().asElement().equals(annotation)) {
                 return mirror;
             }

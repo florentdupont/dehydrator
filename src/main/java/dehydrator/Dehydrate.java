@@ -8,7 +8,6 @@ import java.lang.annotation.*;
 @Repeatable(Dehydrates.class)
 public @interface Dehydrate {
 
-
     /**
      * Suffix of the generated class name.
      *
@@ -26,7 +25,6 @@ public @interface Dehydrate {
      * Class for common collections representing x-to-Many associations to other Entities.
      */
     String excludedCollectionClass() default "java.lang.Iterable";
-
 
     /**
      * Parent class representing the Entity
